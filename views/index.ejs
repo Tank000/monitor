@@ -1,0 +1,124 @@
+<div class="container">
+<%hostArr.forEach(function(data){%>
+<div class="row">
+<h2><a href="/monitor/now?ip=<%=data.agent%>"><%=data.agent%></a></h2>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th colspan="5">HOST</th>
+      <th colspan="3">CPU</th>
+      <th colspan="2">磁盘</th>
+      <th colspan="2">内存</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>监控时间</th>
+      <th>主机名</th>
+      <th>主机类型</th>
+      <th>系统名</th>
+      <th>系统版本</th>
+      <td>线程数</td>
+      <td>主频</td>
+      <td>运行时间</td>
+      <th>总量</th>
+      <td>剩余</td>
+      <td>总量</td>
+      <td>空闲</td>
+    </tr> 
+    <tr><%var d =new Date(data.unixSecondsUTC*1000); %>
+      <td><%=d.toISOString().slice(0,10)%><br><%=d.toLocaleTimeString()%></td>
+      <td><%=data.host.hostname%></td>
+      <td><%=data.host.machine_type%></td>
+      <td><%=data.host.os_name%></td>
+      <td><%=data.host.os_release%></td>
+      <td><%=data.cpu.cpu_num%></td>
+      <td><%=data.cpu.cpu_speed%>Hz</td>
+      <td><%=data.cpu.cpu_uptime%>秒</td>
+      <td><%=data.disk.disk_total%></td>
+      <td><%=data.disk.disk_free%>%</td>
+      <td><%=dataConvert(1024,0,data.memory.mem_total)%></td>
+      <td><%=(data.memory['mem_free']/data.memory['mem_total']*100).toFixed(2)%>%</td>
+    </tr>
+  </tbody>
+</table>
+<div class="col-md-3">
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>CPU参数</th><th>数值</th></tr>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td>运行进程数</td><td><%=data.cpu.cpu_proc_run%></td></tr>
+    <tr><td>总进程数</td><td><%=data.cpu.cpu_proc_total%></td></tr>
+    <tr><td>1分钟平均负载</td><td><%=data.cpu.cpu_load_one%></td></tr>
+    <tr><td>5分钟平均负载</td><td><%=data.cpu.cpu_load_five%></td></tr> 
+    <tr><td>15分钟平均负载</td><td><%=data.cpu.cpu_load_fifteen%></td></tr>
+    <tr><td>NICE占用率</td><td><%=data.cpu.cpu_nice%>%</td></tr>
+    <tr><td>USER占用率</td><td><%=data.cpu.cpu_user%>%</td></tr> 
+    <tr><td>SYSTEM占用率</td><td><%=data.cpu.cpu_system%>%</td></tr> 
+    <tr><td>IDLE闲置率</td><td><%=data.cpu.cpu_idle%>%</td></tr>
+    <tr><td>等待IO占用率</td><td><%=data.cpu.cpu_wio%>%</td></tr> 
+    <tr><td>中断占用率</td><td><%=data.cpu.cpuintr%>%</td></tr>
+    <tr><td>软中断占用率</td><td><%=data.cpu.cpu_sintr%>%</td></tr> 
+    <tr><td>中断数</td><td><%=data.cpu.cpuinterrupts%>/s</td></tr> 
+    <tr><td>上下文交换数</td><td><%=data.cpu.cpu_contexts%>/s</td></tr>     
+  </tbody>
+</table>
+</div>
+<div class="col-md-3">
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Memory参数</th><th>数值</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>空闲内存</td><td><%=dataConvert(1024,0,data.memory.mem_free)%></td></tr>
+    <tr><td>shared共享内存</td><td><%=data.memory.mem_shared%></td></tr>
+    <tr><td>buffers缓冲区内存</td><td><%=data.memory.mem_buffers%></td></tr>
+    <tr><td>cached缓存内存</td><td><%=dataConvert(1024,0,data.memory.mem_cached)%></td></tr>
+    <tr><td>交换分区总量</td><td><%=dataConvert(1024,0,data.memory.swap_total)%></td></tr> 
+    <tr><td>空闲交换分区</td><td><%=dataConvert(1024,0,data.memory.swap_free)%></td></tr>
+    <tr><td>内存换入页数</td><td><%=data.memory.page_in%>%</td></tr>
+    <tr><td>内存换出页数</td><td><%=data.memory.page_out%>%</td></tr> 
+    <tr><td>交换分区换入页数</td><td><%=data.memory.swap_in%></td></tr> 
+    <tr><td>交换分区换出页数</td><td><%=data.memory.swap_out%></td></tr>  
+  </tbody>
+</table>
+</div>
+<div class="col-md-3">
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Disk参数</th><th>数值</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>最大磁盘占用率</td><td><%=data.disk.disk_partition_max_used%>%</td></tr>
+    <tr><td>磁盘读取请求</td><td><%=data.disk.disk_reads%>次/秒</td></tr>
+    <tr><td>磁盘读取字节</td><td><%=data.disk.disk_bytes_read%>bytes/s</td></tr>
+    <tr><td>磁盘读取时间</td><td><%=data.disk.disk_read_time%></td></tr> 
+    <tr><td>磁盘写入请求</td><td><%=data.disk.disk_writes%>次/秒</td></tr>
+    <tr><td>磁盘写入字节</td><td><%=data.disk.disk_bytes_written%>bytes/s</td></tr>
+    <tr><td>磁盘写入时间</td><td><%=data.disk.disk_write_time%></td></tr> 
+  </tbody>
+</table>
+</div>
+<div class="col-md-3">
+<table class="table table-bordered">
+  <thead>
+    <tr><th>Network参数</th><th>数值</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>流入字节</td><td><%=data.network.nio_bytes_in%>bytes/s</td></tr>
+    <tr><td>流入报文</td><td><%=data.network.nio_pkts_in%>packets/s</td></tr>
+    <tr><td>流入错误</td><td><%=data.network.nio_errs_in%>err/s</td></tr>
+    <tr><td>流入丢包</td><td><%=data.network.nio_drops_in%>drop/s</td></tr> 
+    <tr><td>流出字节</td><td><%=data.network.nio_bytes_out%>bytes/s</td></tr>
+    <tr><td>流出报文</td><td><%=data.network.nio_pkts_out%>Packets/s</td></tr>
+    <tr><td>流出错误</td><td><%=data.network.nio_errs_out%>err/s</td></tr> 
+    <tr><td>流出丢包</td><td><%=data.network.nio_drops_out%>drop/s</td></tr> 
+  </tbody>
+</table>
+</div>
+</div>
+<%})%>
+</div>

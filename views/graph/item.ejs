@@ -1,0 +1,90 @@
+<nav class="navmenu" id="navleft">
+<h3><%=ip%></h3>
+<ul>
+  <li><a href="/monitor/now?ip=<%=ip%>">实时</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=all">1小时</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=all">24小时前</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=all">30天前</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+</nav>
+<section class="mainbody">
+<div class="container"><% for (var i in dataHash) { %><div id="<%=i%>" class="col-xs-6 graph-element"></div><% } %></div>
+</section>
+<script type="text/javascript">
+var dataHash = JSON.parse('<%-JSON.stringify(dataHash)%>');
+var timeArr = JSON.parse('<%-JSON.stringify(timeArr)%>');
+$(function () {
+  function createOption(){
+    return {
+      chart : {
+          renderTo : 'divID',
+          type: 'spline',
+          zoomType: 'x',
+          backgroundColor:'transparent',
+          events: {},
+      },
+      plotOptions: {
+          spline: {
+              marker: {
+                  enabled: false
+              },
+          }
+      },
+      title: {
+          text: '标题',
+          x: -20 //center
+      },
+      xAxis: {  
+          gapGridLineWidth: 0,        
+          labels:{
+            enabled:false
+          }
+      },
+      yAxis: {
+          title: {
+              text: '%'
+          }
+      },
+      credits:{enabled: false},
+      tooltip: {
+        formatter: function() {
+          var s = new Date(this.x*1000).toLocaleString() +'<br><b>'+ this.y+'</b>';
+          return s;  
+        }
+      },
+      series: []
+    }
+  }
+
+  for (var x in dataHash) {
+      var option = createOption();
+      option.chart.renderTo = x;
+      option.xAxis.categories = timeArr;
+      option.yAxis.title.text = dataHash[x]['unit'];
+      option.title.text = dataHash[x]['name'];
+      option.series[0] = dataHash[x];
+      new Highcharts.Chart(option);
+  }
+  dataHash = null;
+});
+</script>
+<script src="/js/highcharts.js"></script>
+<script src="/js/exporting.js"></script>

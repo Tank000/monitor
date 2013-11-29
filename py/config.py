@@ -10,7 +10,7 @@ MONGO_DB = 'tag_monitor'
 #数据库相关初始化
 connection = pymongo.Connection(MONGO_IP, MONGO_PORT)
 db = connection[MONGO_DB]
-host = db.host
+db.authenticate('tank','forlove')
 # host.ensure_index([('unixSecondsUTC', pymongo.ASCENDING), ('UUID', pymongo.ASCENDING)])
 # host.ensure_index([('UUID', pymongo.ASCENDING), ('unixSecondsUTC', pymongo.ASCENDING)])
 
@@ -36,10 +36,10 @@ METRICS = {
 	'disk_partition_max_used': { 'dst': 'GAUGE', 'group': GROUP[3], 'type': 'float' },
 	'disk_reads': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
 	'disk_bytes_read': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
-	'disk_read_time': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
+	'disk_read_time': { 'dst': 'GAUGE', 'group': GROUP[3], 'type': 'float' },
 	'disk_writes': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
 	'disk_bytes_written': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
-	'disk_write_time': { 'dst': 'COUNTER', 'group': GROUP[3], 'type': 'float' },
+	'disk_write_time': { 'dst': 'GAUGE', 'group': GROUP[3], 'type': 'float' },
 
 	'mem_total': { 'dst': 'GAUGE', 'group': GROUP[1], 'type': 'float' },
 	'mem_free': { 'dst': 'GAUGE', 'group': GROUP[1], 'type': 'float' },

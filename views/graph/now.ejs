@@ -1,0 +1,104 @@
+<nav class="navmenu" id="navleft">
+<h3><%=ip%></h3>
+<ul>
+  <li><a href="/monitor/now?ip=<%=ip%>">实时</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=all">半小时</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/hour?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=all">24小时前</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/day?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+<ul>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=all">30天前</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=cpu">CPU</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=memory">内存</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=disk">磁盘</a></li>
+  <li><a href="/monitor/month?ip=<%=ip%>&t=network">网络</a></li>
+</ul>
+</nav>
+<section class="mainbody">
+<div class="container"><% for (var i in dataHash) { %><div id="<%=i%>" class="col-xs-12 graph-element"></div><% } %></div>
+</section>
+
+<script type="text/javascript">
+var dataHash = JSON.parse('<%-JSON.stringify(dataHash)%>');
+$(function () {
+  function createOption(){
+    return {
+      chart : {
+          renderTo : 'divID',
+          type: 'spline',
+          zoomType: 'x',
+          backgroundColor:'transparent',
+          events: {},
+      },
+      plotOptions: {
+          spline: {
+              marker: {
+                  enabled: false
+              },
+          }
+      },
+      title: {
+          text: '标题',
+          x: -20 //center
+      },
+      xAxis: {  
+          gapGridLineWidth: 0,        
+          labels:{
+            enabled:false
+          }
+      },
+      yAxis: {
+          title: {
+              text: '%'
+          }
+      },
+      credits:{enabled: false},
+      tooltip: {
+        formatter: function() {
+          var s = new Date(this.x*1000).toLocaleString() +'<br>'+this.x+'<br><b>'+ this.y+'</b>';
+          return s;  
+        }
+      },
+      series: []
+    }
+  }
+
+  for (var x in dataHash) {
+    if(dataHash[x]['data']){
+      var option = createOption();
+      option.chart.renderTo = x;
+      option.yAxis.title.text = dataHash[x]['unit'];
+      option.title.text = dataHash[x]['name'];
+      option.series[0] = dataHash[x];
+      new Highcharts.Chart(option);
+    }
+  }
+  dataHash = null;
+  function getFreshData() {
+    $.get('/monitor/data'+window.location.search, function(result){
+      for (var x in result) {
+        if(result[x]['data'].length>0){
+          var series = $('#'+x).highcharts().series[0];
+          for(var y in result[x]['data']){
+            series.addPoint(result[x]['data'][y],true,true);
+          }
+        }
+      }
+    });
+  }
+  setInterval(getFreshData,5*1000);
+});
+</script>
+<script src="/js/highcharts.js"></script>
+<script src="/js/exporting.js"></script>
